@@ -246,7 +246,7 @@ class LNLSTMLayer(MergeLayer):
             self.hid_init = self.add_param(
                 hid_init, (1, self.num_units), name="hid_init",
                 trainable=learn_init, regularizable=False)
-
+    #for lnlstm
     def ln(self,x,b,s):
         _eps = 1e-5
         output = (x - x.mean(1)[:, None]) / T.sqrt((x.var(1)[:, None] + _eps))
@@ -386,7 +386,7 @@ class LNLSTMLayer(MergeLayer):
 
             # Compute new cell value
             cell = forgetgate*cell_previous + ingate*cell_input
-            cell_= self.ln(cell,self.b3,self.s3)
+            cell_= self.ln(cell,self.b3,self.s3)#for lnlstm
             if self.peepholes:
                 #outgate += cell*self.W_cell_to_outgate
                 outgate += cell_ * self.W_cell_to_outgate
