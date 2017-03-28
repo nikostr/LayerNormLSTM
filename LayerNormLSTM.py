@@ -361,8 +361,8 @@ class LNLSTMLayer(MergeLayer):
             input_n_ = self.ln(input_n,self.b1,self.s1)
             hid_previous_ =self.ln(T.dot(hid_previous,W_hid_stacked),self.b2,self.s2)
             
-            gates = input_n_ + T.dot(hid_previous_, W_hid_stacked)+ b_stacked
-
+            #gates = input_n_ + T.dot(hid_previous_, W_hid_stacked)+ b_stacked
+            gates = input_n_ + hid_previous_+ b_stacked
             # Clip gradients
             if self.grad_clipping:
                 gates = theano.gradient.grad_clip(
