@@ -175,24 +175,32 @@ class LNLSTMLayer(MergeLayer):
         scale_add = 0.0
         scale_mul = 1.0
 
-        b1 = scale_add * np.ones((4*self.num_units)).astype('float32')
-        b2 = scale_add * np.ones((4 * self.num_units)).astype('float32')
-        b3 = scale_add * np.ones((1 * self.num_units)).astype('float32')
+        #b1 = scale_add * np.ones((4*self.num_units)).astype('float32')
+        #b2 = scale_add * np.ones((4 * self.num_units)).astype('float32')
+        #b3 = scale_add * np.ones((1 * self.num_units)).astype('float32')
 
-        s1 = scale_mul * np.ones((4 * self.num_units)).astype('float32')
-        s2 = scale_mul * np.ones((4 * self.num_units)).astype('float32')
-        s3 = scale_mul * np.ones((1 * self.num_units)).astype('float32')
+        #s1 = scale_mul * np.ones((4 * self.num_units)).astype('float32')
+        #s2 = scale_mul * np.ones((4 * self.num_units)).astype('float32')
+        #s3 = scale_mul * np.ones((1 * self.num_units)).astype('float32')
 
-        self.b1 = self.add_param(b1,(4*self.num_units,),name='b1')
-        self.b2 = self.add_param(b2,(4 * self.num_units,), name='b2')
-        self.b3 = self.add_param(b3,(1 * self.num_units,), name='b3')
+        #self.b1 = self.add_param(b1,(4*self.num_units,),name='b1')
+        #self.b2 = self.add_param(b2,(4 * self.num_units,), name='b2')
+        #self.b3 = self.add_param(b3,(1 * self.num_units,), name='b3')
 
-        self.s1 = self.add_param(s1, (4 * self.num_units,), name='s1')
-        self.s2 = self.add_param(s2, (4 * self.num_units,), name='s2')
-        self.s3 = self.add_param(s3, (1 * self.num_units,), name='s3')
+        #self.s1 = self.add_param(s1, (4 * self.num_units,), name='s1')
+        #self.s2 = self.add_param(s2, (4 * self.num_units,), name='s2')
+        #self.s3 = self.add_param(s3, (1 * self.num_units,), name='s3')
 
-
-
+        self.b1 = self.add_param(lasagne.init.Constant(scale_add), (4 * self.num_units,), name='b1') 
+        self.b2 = self.add_param(lasagne.init.Constant(scale_add), (4 * self.num_units,), name='b2') 
+        self.b3 = self.add_param(lasagne.init.Constant(scale_add), (1 * self.num_units,), name='b3') 
+        
+        self.s1 = self.add_param(lasagne.init.Constant(scale_mul), (4 * self.num_units,), name='s1') 
+        self.b2 = self.add_param(lasagne.init.Constant(scale_mul), (4 * self.num_units,), name='s2') 
+        self.b3 = self.add_param(lasagne.init.Constant(scale_mul), (1 * self.num_units,), name='s3') 
+        
+        
+        
         def add_gate_params(gate, gate_name):
             """ Convenience function for adding layer parameters from a Gate
             instance. """
