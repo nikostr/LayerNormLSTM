@@ -175,29 +175,13 @@ class LNLSTMLayer(MergeLayer):
         scale_add = 0.0
         scale_mul = 1.0
 
-        #b1 = scale_add * np.ones((4*self.num_units)).astype('float32')
-        #b2 = scale_add * np.ones((4 * self.num_units)).astype('float32')
-        #b3 = scale_add * np.ones((1 * self.num_units)).astype('float32')
-
-        #s1 = scale_mul * np.ones((4 * self.num_units)).astype('float32')
-        #s2 = scale_mul * np.ones((4 * self.num_units)).astype('float32')
-        #s3 = scale_mul * np.ones((1 * self.num_units)).astype('float32')
-
-        #self.b1 = self.add_param(b1,(4*self.num_units,),name='b1')
-        #self.b2 = self.add_param(b2,(4 * self.num_units,), name='b2')
-        #self.b3 = self.add_param(b3,(1 * self.num_units,), name='b3')
-
-        #self.s1 = self.add_param(s1, (4 * self.num_units,), name='s1')
-        #self.s2 = self.add_param(s2, (4 * self.num_units,), name='s2')
-        #self.s3 = self.add_param(s3, (1 * self.num_units,), name='s3')
-
-        self.b1 = self.add_param(lasagne.init.Constant(scale_add), (4 * self.num_units,), name='b1') 
-        self.b2 = self.add_param(lasagne.init.Constant(scale_add), (4 * self.num_units,), name='b2') 
-        self.b3 = self.add_param(lasagne.init.Constant(scale_add), (1 * self.num_units,), name='b3') 
+        self.b1 = self.add_param(init.Constant(scale_add), (4 * self.num_units,), name='b1') 
+        self.b2 = self.add_param(init.Constant(scale_add), (4 * self.num_units,), name='b2') 
+        self.b3 = self.add_param(init.Constant(scale_add), (1 * self.num_units,), name='b3') 
         
-        self.s1 = self.add_param(lasagne.init.Constant(scale_mul), (4 * self.num_units,), name='s1') 
-        self.b2 = self.add_param(lasagne.init.Constant(scale_mul), (4 * self.num_units,), name='s2') 
-        self.b3 = self.add_param(lasagne.init.Constant(scale_mul), (1 * self.num_units,), name='s3') 
+        self.s1 = self.add_param(init.Constant(scale_mul), (4 * self.num_units,), name='s1') 
+        self.s2 = self.add_param(init.Constant(scale_mul), (4 * self.num_units,), name='s2') 
+        self.s3 = self.add_param(init.Constant(scale_mul), (1 * self.num_units,), name='s3') 
         
         
         
@@ -346,7 +330,7 @@ class LNLSTMLayer(MergeLayer):
             # precompute_input the inputs dot weight matrices before scanning.
             # W_in_stacked is (n_features, 4*num_units). input is then
             # (n_time_steps, n_batch, 4*num_units).
-            input = T.dot(input, W_in_stacked) + b_stacked
+            input = T.dot(input, W_in_stacked)
 
         # When theano.scan calls step, input_n will be (n_batch, 4*num_units).
         # We define a slicing function that extract the input to each LSTM gate
@@ -360,7 +344,7 @@ class LNLSTMLayer(MergeLayer):
         # input_n is the n'th vector of the input
         def step(input_n, cell_previous, hid_previous, *args):
             if not self.precompute_input:
-                input_n = T.dot(input_n, W_in_stacked) + b_stacked
+                input_n = T.dot(input_n, W_in_stacked)
 
             # Calculate gates pre-activations and slice
             #gates = input_n + T.dot(hid_previous, W_hid_stacked)
@@ -436,7 +420,7 @@ class LNLSTMLayer(MergeLayer):
             hid_init = T.dot(ones, self.hid_init)
 
         # The hidden-to-hidden weight matrix is always used in step
-        non_seqs = [W_hid_stacked]
+        non_seqs = [W_hid_stacked, b_stacked]
         # The "peephole" weight matrices are only used when self.peepholes=True
         if self.peepholes:
             non_seqs += [self.W_cell_to_ingate,
@@ -446,8 +430,9 @@ class LNLSTMLayer(MergeLayer):
         # When we aren't precomputing the input outside of scan, we need to
         # provide the input weights and biases to the step function
         if not self.precompute_input:
-            non_seqs += [W_in_stacked, b_stacked]
+            non_seqs += [W_in_stacked]
 
+        non_seqs+=[self.b1, self.b2, self.b3, self.s1, self.s2, self.s3] 
         if self.unroll_scan:
             # Retrieve the dimensionality of the incoming layer
             input_shape = self.input_shapes[0]
